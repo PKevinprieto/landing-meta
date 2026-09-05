@@ -235,6 +235,19 @@
 
     <!-- Evento personalizado para el botón -->
     <script>
+      function obtenerCookie(nombre) {
+        const cookies = document.cookie.split("; ");
+
+        for (const cookie of cookies) {
+          const partes = cookie.split("=");
+
+          if (partes[0] === nombre) {
+            return decodeURIComponent(partes.slice(1).join("="));
+          }
+        }
+
+        return null;
+      }
       document
         .getElementById("crear-usuario")
         .addEventListener("click", async function () {
@@ -244,6 +257,11 @@
             const data = await response.json();
 
             // Registramos el contacto en Meta
+            const fbp = obtenerCookie("_fbp");
+            const fbc = obtenerCookie("_fbc");
+
+            console.log("Meta fbp:", fbp);
+            console.log("Meta fbc:", fbc);
             fbq("track", "Contact");
 
             // Abrimos el WhatsApp que esté activo actualmente
