@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de control</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: white;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .panel {
+        width: 90%;
+        max-width: 500px;
+        background: #1e1e1e;
+        padding: 30px;
+        border-radius: 16px;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .actual {
+        background: #292929;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 14px;
+        font-size: 17px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        margin-bottom: 12px;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        background: #25d366;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      #mensaje {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="panel">
+      <h1>Panel de control</h1>
+
+      <h2>WhatsApp receptor</h2>
+
+      <div class="actual">
+        Número actual:
+        <strong id="numero-actual">Cargando...</strong>
+      </div>
+
+      <input id="nuevo-numero" type="tel" placeholder="Ej: 5492231234567" />
+
+      <button id="guardar">Cambiar número</button>
+
+      <div id="mensaje"></div>
+    </div>
+
+    <script>
+      const numeroActual = document.getElementById("numero-actual");
+      const nuevoNumero = document.getElementById("nuevo-numero");
+      const mensaje = document.getElementById("mensaje");
+
+      async function cargarNumero() {
+        try {
+          const response = await fetch("/api/whatsapp");
+          const data = await response.json();
+
+          numeroActual.textContent = data.number;
+        } catch (error) {
+          numeroActual.textContent = "Error";
+        }
+      }
+
+      document
+        .getElementById("guardar")
+        .addEventListener("click", async function () {
+          mensaje.textContent = "Guardando...";
+
+          try {
+            const response = await fetch("/api/whatsapp", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                number: nuevoNumero.value,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              mensaje.textContent = data.message;
+              return;
+            }
+
+            numeroActual.textContent = data.number;
+            nuevoNumero.value = "";
+
+            mensaje.textContent = "✅ Número actualizado correctamente.";
+          } catch (error) {
+            mensaje.textContent = "❌ No se pudo actualizar el número.";
+          }
+        });
+
+      cargarNumero();
+    </script>
+  </body>
+</html>

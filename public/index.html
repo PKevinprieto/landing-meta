@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Juguemos</title>
+    <style>
+      /* CSS base */
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-image: url(WhatsApp\ Image\ 2025-09-03\ at\ 20.30.10.jpeg);
+        background-size: cover;
+        background-position: center;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: scale(1.4);
+        transform-origin: center;
+      }
+
+      h1 {
+        margin-bottom: 30px;
+        padding: 0;
+        color: #25d366;
+        font-size: 50px;
+        -webkit-text-stroke: 2px black;
+        text-shadow: 0 4px 60px white;
+      }
+
+      p {
+        margin-bottom: 30px;
+        color: #555;
+      }
+
+      .img {
+        width: 50px;
+        height: 50px;
+        background-color: green;
+        border-radius: 100px;
+      }
+
+      button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        white-space: nowrap;
+        background-color: #25d366;
+        color: white;
+        width: 400px;
+        height: 70px;
+        font-size: 30px;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 100px;
+        cursor: pointer;
+        transition: 0.3s;
+        text-shadow: 2px -1px 5px black;
+        box-shadow:
+          0 0 30px #25d366,
+          0 0 40px #25d366;
+      }
+
+      button:hover {
+        background-color: #25d366;
+        transform: scale(1.05);
+      }
+
+      .logo {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 40px;
+      }
+
+      .flecha {
+        margin-top: 50px;
+        height: 50px;
+        width: 50px;
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .container {
+          transform: scale(1.1);
+          padding: 30px;
+        }
+        h1 {
+          font-size: 40px;
+        }
+        button {
+          width: 300px;
+          height: 60px;
+          font-size: 24px;
+          gap: 15px;
+        }
+        .logo {
+          width: 150px;
+          height: 150px;
+          margin-bottom: 30px;
+        }
+        .img {
+          width: 40px;
+          height: 40px;
+        }
+        .flecha {
+          width: 40px;
+          height: 40px;
+          margin-top: 30px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          transform: scale(1);
+          padding: 20px;
+        }
+        h1 {
+          font-size: 32px;
+        }
+        button {
+          width: 250px;
+          height: 50px;
+          font-size: 20px;
+          gap: 10px;
+        }
+        .logo {
+          width: 120px;
+          height: 120px;
+          margin-bottom: 20px;
+        }
+        .img {
+          width: 30px;
+          height: 30px;
+        }
+        .flecha {
+          width: 30px;
+          height: 30px;
+          margin-top: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 26px;
+        }
+        button {
+          width: 200px;
+          height: 45px;
+          font-size: 18px;
+          gap: 8px;
+          white-space: nowrap;
+        }
+        .logo {
+          width: 100px;
+          height: 100px;
+          margin-bottom: 15px;
+        }
+        .img {
+          width: 25px;
+          height: 25px;
+        }
+        .flecha {
+          width: 25px;
+          height: 25px;
+          margin-top: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>KDEV</h1>
+      <img src="logo wsp - Editado.png" class="logo" alt="Logo" />
+
+      <button id="crear-usuario">
+        ¡Whatsapp!
+        <img src="images - Editado.png" class="img" alt="Icono WhatsApp" />
+      </button>
+
+      <img src="Flecha_verde.png" class="flecha" alt="Flecha indicador" />
+    </div>
+
+    <!-- Meta Pixel Base Code -->
+    <script>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = !0;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(
+        window,
+        document,
+        "script",
+        "https://connect.facebook.net/en_US/fbevents.js",
+      );
+      fbq("init", "TU_PIXEL_ID");
+      fbq("track", "PageView");
+    </script>
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display: none"
+        src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"
+      />
+    </noscript>
+
+    <!-- Evento personalizado para el botón -->
+    <script>
+      document
+        .getElementById("crear-usuario")
+        .addEventListener("click", async function () {
+          try {
+            // Pedimos al servidor el WhatsApp activo
+            const response = await fetch("/api/whatsapp");
+            const data = await response.json();
+
+            // Registramos el contacto en Meta
+            fbq("track", "Contact");
+
+            // Abrimos el WhatsApp que esté activo actualmente
+            setTimeout(function () {
+              const mensaje = encodeURIComponent("Holaa, quiero jugar");
+
+              window.location.href =
+                "https://wa.me/" + data.number + "?text=" + mensaje;
+            }, 300);
+          } catch (error) {
+            console.error("Error obteniendo el número de WhatsApp:", error);
+            alert("No se pudo abrir WhatsApp. Intentá nuevamente.");
+          }
+        });
+    </script>
+  </body>
+</html>
