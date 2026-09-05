@@ -60,6 +60,15 @@
       #mensaje {
         margin-top: 15px;
       }
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 14px;
+        font-size: 17px;
+        border-radius: 8px;
+        border: 1px solid #444;
+        margin-bottom: 12px;
+      }
     </style>
   </head>
 
@@ -79,6 +88,32 @@
       <button id="guardar">Cambiar número</button>
 
       <div id="mensaje"></div>
+      <hr style="margin: 30px 0; border-color: #444" />
+
+      <h2>Registrar compra</h2>
+
+      <input
+        id="purchase-phone"
+        type="tel"
+        placeholder="Teléfono del comprador. Ej: 5492231234567"
+      />
+
+      <input
+        id="purchase-value"
+        type="number"
+        min="0"
+        step="0.01"
+        placeholder="Importe de la venta"
+      />
+
+      <select id="purchase-currency">
+        <option value="ARS">ARS - Pesos argentinos</option>
+        <option value="USD">USD - Dólares</option>
+      </select>
+
+      <button id="registrar-compra">Registrar compra en Meta</button>
+
+      <div id="purchase-mensaje"></div>
     </div>
 
     <script>
@@ -130,6 +165,62 @@
         });
 
       cargarNumero();
+      const purchasePhone = document.getElementById("purchase-phone");
+      const purchaseValue = document.getElementById("purchase-value");
+      const purchaseCurrency = document.getElementById("purchase-currency");
+      const purchaseMensaje = document.getElementById("purchase-mensaje");
+      const registrarCompra = document.getElementById("registrar-compra");
+
+      registrarCompra.addEventListener("click", async function () {
+        const phone = purchasePhone.value.trim();
+        const value = purchaseValue.value;
+        const currency = purchaseCurrency.value;
+
+        if (!phone || !value) {
+          purchaseMensaje.textContent = "❌ Completá el teléfono y el importe.";
+          return;
+        }
+
+        registrarCompra.disabled = true;
+        registrarCompra.textContent = "Enviando...";
+        purchaseMensaje.textContent = "";
+
+        try {
+          const response = await fetch("/api/purchase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              phone,
+              value,
+              currency,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            purchaseMensaje.textContent =
+              "❌ " + (data.message || "No se pudo registrar la compra.");
+            return;
+          }
+
+          purchaseMensaje.textContent =
+            "✅ Compra enviada correctamente a Meta.";
+
+          purchasePhone.value = "";
+          purchaseValue.value = "";
+        } catch (error) {
+          console.error(error);
+
+          purchaseMensaje.textContent =
+            "❌ Error comunicándose con el servidor.";
+        } finally {
+          registrarCompra.disabled = false;
+          registrarCompra.textContent = "Registrar compra en Meta";
+        }
+      });
     </script>
   </body>
 </html>
