@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
 const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const crypto = require("crypto");
 const app = express();
 app.set("trust proxy", 1);
@@ -20,9 +21,16 @@ const pool = new Pool({
 app.use(express.json());
 app.use(
   session({
+    store: new pgSession({
+      pool: pool,
+      tableName: "user_sessions",
+      createTableIfMissing: true,
+    }),
+
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
