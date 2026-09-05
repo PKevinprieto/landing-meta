@@ -96,6 +96,15 @@ async function iniciarBaseDeDatos() {
         whatsapp_number VARCHAR(15) NOT NULL
       )
     `);
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS whatsapp_contacts (
+        id UUID PRIMARY KEY,
+        fbp TEXT,
+        fbc TEXT,
+        user_agent TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+    `);
 
     await pool.query(`
       INSERT INTO config (id, whatsapp_number)
@@ -118,7 +127,38 @@ function hashTelefono(phone) {
 
   return crypto.createHash("sha256").update(normalizado).digest("hex");
 }
+app.post("/api/contact", async (req, res) => {
+  try {
+    const { fbp, fbc } = req.body;
 
+    const contactId = crypto.randomUUID();
+
+    await pool.query(
+      `
+      INSERT INTO whatsapp_contacts (
+        id,
+        fbp,
+        fbc,
+        user_agent
+      )
+      VALUES ($1, $2, $3, $4)
+      `,
+      [contactId, fbp || null, fbc || null, req.get("user-agent") || null],
+    );
+
+    res.json({
+      ok: true,
+      contactId,
+    });
+  } catch (error) {
+    console.error("Error registrando contacto:", error);
+
+    res.status(500).json({
+      ok: false,
+      message: "No se pudo registrar el contacto.",
+    });
+  }
+});
 // Registrar una compra en Meta
 app.post("/api/purchase", async (req, res) => {
   try {
