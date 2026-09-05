@@ -110,6 +110,117 @@ async function iniciarBaseDeDatos() {
 }
 
 iniciarBaseDeDatos();
+const crypto = require("crypto");
+
+// Normaliza y hashea el teléfono como requiere Meta
+function hashTelefono(phone) {
+  const normalizado = String(phone).replace(/\D/g, "");
+
+  return crypto.createHash("sha256").update(normalizado).digest("hex");
+}
+
+// Registrar una compra en Meta
+app.post("/api/purchase", async (req, res) => {
+  try {
+    let { phone, value, currency } = req.body;
+
+    // Validaciones
+    phone = String(phone || "").replace(/\D/g, "");
+    value = Number(value);
+    currency = String(currency || "")
+      .toUpperCase()
+      .trim();
+
+    if (phone.length < 8 || phone.length > 15) {
+      return res.status(400).json({
+        ok: false,
+        message: "El teléfono no parece válido.",
+      });
+    }
+
+    if (!Number.isFinite(value) || value <= 0) {
+      return res.status(400).json({
+        ok: false,
+        message: "El importe no es válido.",
+      });
+    }
+
+    if (!["ARS", "USD"].includes(currency)) {
+      return res.status(400).json({
+        ok: false,
+        message: "La moneda debe ser ARS o USD.",
+      });
+    }
+
+    const pixelId = process.env.META_PIXEL_ID;
+    const accessToken = process.env.META_ACCESS_TOKEN;
+
+    if (!pixelId || !accessToken) {
+      throw new Error("Faltan las credenciales de Meta.");
+    }
+
+    const eventId = crypto.randomUUID();
+
+    const payload = {
+      data: [
+        {
+          event_name: "Purchase",
+          event_time: Math.floor(Date.now() / 1000),
+          event_id: eventId,
+          action_source: "website",
+
+          event_source_url: "https://landing-meta.onrender.com/",
+
+          user_data: {
+            ph: [hashTelefono(phone)],
+          },
+
+          custom_data: {
+            currency: currency,
+            value: value,
+          },
+        },
+      ],
+    };
+
+    const response = await fetch(
+      `https://graph.facebook.com/v24.0/${pixelId}/events?access_token=${encodeURIComponent(accessToken)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+
+    const metaResponse = await response.json();
+
+    if (!response.ok) {
+      console.error("Error de Meta:", metaResponse);
+
+      return res.status(502).json({
+        ok: false,
+        message: "Meta rechazó el evento.",
+      });
+    }
+
+    console.log("Purchase enviado a Meta:", eventId);
+
+    res.json({
+      ok: true,
+      message: "Compra registrada correctamente.",
+      eventId: eventId,
+    });
+  } catch (error) {
+    console.error("Error enviando Purchase:", error);
+
+    res.status(500).json({
+      ok: false,
+      message: "No se pudo registrar la compra.",
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Servidor funcionando en http://localhost:${PORT}`);
 });
