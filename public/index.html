@@ -287,7 +287,11 @@
 
             // Abrimos el WhatsApp que esté activo actualmente
             setTimeout(function () {
-              const mensaje = encodeURIComponent("Holaa, quiero jugar");
+              const referencia = contactData.contactId.substring(0, 8);
+
+              const mensaje = encodeURIComponent(
+                "Holaa, quiero jugar\n\nRef: " + referencia,
+              );
 
               window.location.href =
                 "https://wa.me/" + data.number + "?text=" + mensaje;
