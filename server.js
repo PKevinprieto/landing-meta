@@ -35,7 +35,7 @@ function protegerPanel(req, res, next) {
     return next();
   }
 
-  if (req.path === "/panel.html") {
+  if (req.originalUrl.startsWith("/panel.html")) {
     return res.redirect("/login.html");
   }
 
