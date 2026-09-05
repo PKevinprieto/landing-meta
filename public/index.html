@@ -260,8 +260,29 @@
             const fbp = obtenerCookie("_fbp");
             const fbc = obtenerCookie("_fbc");
 
-            console.log("Meta fbp:", fbp);
-            console.log("Meta fbc:", fbc);
+            // Registramos el clic/contacto en nuestro servidor
+            const contactResponse = await fetch("/api/contact", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fbp,
+                fbc,
+              }),
+            });
+
+            const contactData = await contactResponse.json();
+
+            if (!contactResponse.ok) {
+              throw new Error(
+                contactData.message || "No se pudo registrar el contacto",
+              );
+            }
+
+            console.log("Contacto registrado:", contactData.contactId);
+
+            // Evento del Pixel
             fbq("track", "Contact");
 
             // Abrimos el WhatsApp que esté activo actualmente
