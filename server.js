@@ -3,6 +3,8 @@ const path = require("path");
 const { Pool } = require("pg");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ADMIN_USER = process.env.ADMIN_USER;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl:
@@ -13,6 +15,37 @@ const pool = new Pool({
 
 app.use(express.json());
 
+function protegerPanel(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!ADMIN_USER || !ADMIN_PASSWORD) {
+    console.error("ADMIN_USER o ADMIN_PASSWORD no están configurados");
+    return res.status(500).send("Panel no configurado");
+  }
+
+  if (!authHeader || !authHeader.startsWith("Basic ")) {
+    res.setHeader("WWW-Authenticate", 'Basic realm="Panel KDev"');
+    return res.status(401).send("Acceso requerido");
+  }
+
+  const base64Credentials = authHeader.split(" ")[1];
+  const credentials = Buffer.from(base64Credentials, "base64").toString("utf8");
+
+  const separatorIndex = credentials.indexOf(":");
+
+  const username = credentials.substring(0, separatorIndex);
+  const password = credentials.substring(separatorIndex + 1);
+
+  if (username !== ADMIN_USER || password !== ADMIN_PASSWORD) {
+    res.setHeader("WWW-Authenticate", 'Basic realm="Panel KDev"');
+    return res.status(401).send("Usuario o contraseña incorrectos");
+  }
+
+  next();
+}
+app.use("/panel.html", protegerPanel);
+app.use("/api/whatsapp", protegerPanel);
+app.use("/api/purchase", protegerPanel);
 // Servir la landing y, más adelante, nuestro panel
 app.use(express.static(path.join(__dirname, "public")));
 
