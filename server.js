@@ -333,7 +333,6 @@ app.post("/api/purchase", async (req, res) => {
           },
         },
       ],
-      test_event_code: "TEST9727",
     };
 
     const response = await fetch(
