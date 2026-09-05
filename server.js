@@ -4,6 +4,7 @@ const { Pool } = require("pg");
 const session = require("express-session");
 const crypto = require("crypto");
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
