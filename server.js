@@ -1,10 +1,13 @@
 const express = require("express");
 const path = require("path");
 const { Pool } = require("pg");
+const session = require("express-session");
+const crypto = require("crypto");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_USER = process.env.ADMIN_USER;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const SESSION_SECRET = process.env.SESSION_SECRET;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl:
@@ -14,35 +17,77 @@ const pool = new Pool({
 });
 
 app.use(express.json());
-
+app.use(
+  session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 12,
+    },
+  }),
+);
 function protegerPanel(req, res, next) {
-  const authHeader = req.headers.authorization;
-
-  if (!ADMIN_USER || !ADMIN_PASSWORD) {
-    console.error("ADMIN_USER o ADMIN_PASSWORD no están configurados");
-    return res.status(500).send("Panel no configurado");
+  if (req.session && req.session.admin === true) {
+    return next();
   }
 
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    res.setHeader("WWW-Authenticate", 'Basic realm="Panel KDev"');
-    return res.status(401).send("Acceso requerido");
+  if (req.path === "/panel.html") {
+    return res.redirect("/login.html");
   }
 
-  const base64Credentials = authHeader.split(" ")[1];
-  const credentials = Buffer.from(base64Credentials, "base64").toString("utf8");
+  return res.status(401).json({
+    ok: false,
+    message: "No autorizado",
+  });
+}
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
 
-  const separatorIndex = credentials.indexOf(":");
+  if (!ADMIN_USER || !ADMIN_PASSWORD || !SESSION_SECRET) {
+    console.error("Variables de autenticación no configuradas");
 
-  const username = credentials.substring(0, separatorIndex);
-  const password = credentials.substring(separatorIndex + 1);
+    return res.status(500).json({
+      ok: false,
+      message: "El acceso no está configurado correctamente",
+    });
+  }
 
   if (username !== ADMIN_USER || password !== ADMIN_PASSWORD) {
-    res.setHeader("WWW-Authenticate", 'Basic realm="Panel KDev"');
-    return res.status(401).send("Usuario o contraseña incorrectos");
+    return res.status(401).json({
+      ok: false,
+      message: "Usuario o contraseña incorrectos",
+    });
   }
 
-  next();
-}
+  req.session.admin = true;
+
+  return res.json({
+    ok: true,
+  });
+});
+
+app.post("/api/logout", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error("Error cerrando sesión:", error);
+
+      return res.status(500).json({
+        ok: false,
+        message: "No se pudo cerrar la sesión",
+      });
+    }
+
+    res.clearCookie("connect.sid");
+
+    return res.json({
+      ok: true,
+    });
+  });
+});
 app.use("/panel.html", protegerPanel);
 app.use("/api/whatsapp", protegerPanel);
 app.use("/api/purchase", protegerPanel);
@@ -152,7 +197,6 @@ async function iniciarBaseDeDatos() {
 }
 
 iniciarBaseDeDatos();
-const crypto = require("crypto");
 
 // Normaliza y hashea el teléfono como requiere Meta
 function hashTelefono(phone) {

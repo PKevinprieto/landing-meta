@@ -74,6 +74,7 @@
 
   <body>
     <div class="panel">
+      <button id="logout-button" type="button">Cerrar sesión</button>
       <h1>Panel de control</h1>
 
       <h2>WhatsApp receptor</h2>
@@ -230,6 +231,23 @@
         } finally {
           registrarCompra.disabled = false;
           registrarCompra.textContent = "Registrar compra en Meta";
+        }
+      });
+      const logoutButton = document.getElementById("logout-button");
+
+      logoutButton.addEventListener("click", async function () {
+        try {
+          const response = await fetch("/api/logout", {
+            method: "POST",
+          });
+
+          if (!response.ok) {
+            throw new Error("No se pudo cerrar la sesión");
+          }
+
+          window.location.href = "/login.html";
+        } catch (error) {
+          console.error("Error cerrando sesión:", error);
         }
       });
     </script>
