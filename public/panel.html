@@ -88,7 +88,9 @@
       <button id="guardar">Cambiar número</button>
 
       <div id="mensaje"></div>
+
       <hr style="margin: 30px 0; border-color: #444" />
+      */REGISTRAR COMPRA/*
 
       <h2>Registrar compra</h2>
 
@@ -97,7 +99,12 @@
         type="tel"
         placeholder="Teléfono del comprador. Ej: 5492231234567"
       />
-
+      <input
+        type="text"
+        id="purchase-reference"
+        placeholder="Referencia (ej: d2f8a0ee)"
+        maxlength="8"
+      />
       <input
         id="purchase-value"
         type="number"
@@ -173,6 +180,9 @@
 
       registrarCompra.addEventListener("click", async function () {
         const phone = purchasePhone.value.trim();
+        const reference = document
+          .getElementById("purchase-reference")
+          .value.trim();
         const value = purchaseValue.value;
         const currency = purchaseCurrency.value;
 
@@ -193,6 +203,7 @@
             },
             body: JSON.stringify({
               phone,
+              reference,
               value,
               currency,
             }),

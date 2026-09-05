@@ -162,7 +162,28 @@ app.post("/api/contact", async (req, res) => {
 // Registrar una compra en Meta
 app.post("/api/purchase", async (req, res) => {
   try {
-    let { phone, value, currency } = req.body;
+    let { phone, reference, value, currency } = req.body;
+    let contact = null;
+
+    if (reference) {
+      const resultado = await pool.query(
+        `
+    SELECT fbp, fbc, user_agent
+    FROM whatsapp_contacts
+    WHERE id::text LIKE $1
+    ORDER BY created_at DESC
+    LIMIT 1
+    `,
+        [reference + "%"],
+      );
+
+      if (resultado.rows.length > 0) {
+        contact = resultado.rows[0];
+        console.log("Contacto encontrado para Purchase:", reference);
+      } else {
+        console.log("No se encontró la referencia:", reference);
+      }
+    }
 
     // Validaciones
     phone = String(phone || "").replace(/\D/g, "");
@@ -213,6 +234,11 @@ app.post("/api/purchase", async (req, res) => {
 
           user_data: {
             ph: [hashTelefono(phone)],
+            ...(contact?.fbp && { fbp: contact.fbp }),
+            ...(contact?.fbc && { fbc: contact.fbc }),
+            ...(contact?.user_agent && {
+              client_user_agent: contact.user_agent,
+            }),
           },
 
           custom_data: {
