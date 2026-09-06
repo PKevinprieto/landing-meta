@@ -44,8 +44,11 @@ function protegerPanel(req, res, next) {
     return next();
   }
 
-  if (req.originalUrl.startsWith("/panel.html")) {
-    return res.redirect("/login.html");
+  if (
+    req.originalUrl.startsWith("/panel") ||
+    req.originalUrl.startsWith("/panel.html")
+  ) {
+    return res.redirect("/login");
   }
 
   return res.status(401).json({
@@ -97,10 +100,28 @@ app.post("/api/logout", (req, res) => {
     });
   });
 });
-app.use("/panel.html", protegerPanel);
 app.use("/api/whatsapp", protegerPanel);
 app.use("/api/purchase", protegerPanel);
 // Servir la landing y, más adelante, nuestro panel
+
+app.get("/login", (req, res) => {
+  if (req.session && req.session.admin === true) {
+    return res.redirect("/panel");
+  }
+
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.get("/panel", protegerPanel, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "panel.html"));
+});
+app.get("/login.html", (req, res) => {
+  res.redirect("/login");
+});
+
+app.get("/panel.html", (req, res) => {
+  res.redirect("/panel");
+});
 app.use(express.static(path.join(__dirname, "public")));
 
 // Obtener el número de WhatsApp actualmente activo
@@ -316,7 +337,7 @@ app.post("/api/purchase", async (req, res) => {
           event_id: eventId,
           action_source: "website",
 
-          event_source_url: "https://landing-meta.onrender.com/",
+          event_source_url: "https://estamos24hs.com/",
 
           user_data: {
             ph: [hashTelefono(phone)],
