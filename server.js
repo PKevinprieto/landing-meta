@@ -100,7 +100,6 @@ app.post("/api/logout", (req, res) => {
     });
   });
 });
-app.use("/api/whatsapp", protegerPanel);
 app.use("/api/purchase", protegerPanel);
 // Servir la landing y, más adelante, nuestro panel
 
@@ -145,7 +144,7 @@ app.get("/api/whatsapp", async (req, res) => {
 });
 
 // Cambiar el número de WhatsApp activo
-app.post("/api/whatsapp", async (req, res) => {
+app.post("/api/whatsapp", protegerPanel, async (req, res) => {
   try {
     let { number } = req.body;
 
