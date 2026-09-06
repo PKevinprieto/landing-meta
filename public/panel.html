@@ -57,8 +57,9 @@
         cursor: pointer;
       }
       .btnclose {
-        width: 50%;
+        width: 25%;
         padding: 5px;
+        margin-bottom: 20px;
         border: none;
         border-radius: 10px;
         background: #ff4d4d;
@@ -84,6 +85,9 @@
 
   <body>
     <div class="panel">
+      <button id="logout-button" type="button" class="btnclose">
+        Cerrar sesión
+      </button>
       <h1>Panel de control</h1>
 
       <h2>WhatsApp receptor</h2>
@@ -129,9 +133,6 @@
       </select>
 
       <button id="registrar-compra">Registrar compra en Meta</button>
-      <button id="logout-button" type="button" class="btnclose">
-        Cerrar sesión
-      </button>
 
       <div id="purchase-mensaje"></div>
     </div>
